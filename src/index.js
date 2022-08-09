@@ -1,17 +1,40 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import { DAppProvider, Mainnet } from "@usedapp/core";
+import { getDefaultProvider } from "ethers";
+import React from "react";
+import ReactDOM from "react-dom/client";
+import Component from "./examples/Component";
+import { TEST_ADDRESS } from "./examples/constants";
+import {
+  lookupAddress,
+  lookupAddressWithENSFallback,
+  lookupAddressWithENSFallbackUsingContract,
+} from "./examples/ethers";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+// You can open the console to see the result of these calls.
+lookupAddress()
+  .then((addr) => console.log(`lookupAddress() -> ${addr}`))
+  .catch((err) => console.error(err));
+lookupAddressWithENSFallback()
+  .then((addr) => console.log(`lookupAddressWithENSFallback() -> ${addr}`))
+  .catch((err) => console.error(err));
+lookupAddressWithENSFallbackUsingContract()
+  .then((addr) =>
+    console.log(`lookupAddressWithENSFallbackUsingContract() -> ${addr}`)
+  )
+  .catch((err) => console.error(err));
+
+const config = {
+  readOnlyChainId: Mainnet.chainId,
+  readOnlyUrls: {
+    [Mainnet.chainId]: getDefaultProvider("mainnet"),
+  },
+};
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <App />
+    <DAppProvider config={config}>
+      <Component address={TEST_ADDRESS} />
+    </DAppProvider>
   </React.StrictMode>
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
