@@ -173,3 +173,5 @@ const Component = ({ address }) => {
   );
 };
 ```
+
+You can find this example [here](./src/examples/Component.jsx).
