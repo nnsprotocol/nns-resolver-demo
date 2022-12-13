@@ -32,7 +32,7 @@ async function lookupAddress(
 ) {
   try {
     const res = await library.call({
-      to: "0x5982ce3554b18a5cf02169049e81ec43bfb73961",
+      to: "0x849f92178950f6254db5d16d1ba265e70521ac1b",
       data: "0x55ea6c47000000000000000000000000" + address.substring(2),
     });
     const offset = BigNumber.from(utils.hexDataSlice(res, 0, 32)).toNumber();

@@ -76,7 +76,7 @@ As for the previous example, this code can also be found [here](./src/examples/e
 
 The approach presented above does work, but requires two calls for each address which may be considered expensive and slow. For this reason, we have a created a contract that specifically resolves addresses to `.⌐◨-◨` with fallback to `.eth` so you can achieve the desired result in one call.
 
-The contract is called `NNSENSReverseResolver` and is deployed at [0x5982cE3554B18a5CF02169049e81ec43BFB73961](https://etherscan.io/address/0x5982cE3554B18a5CF02169049e81ec43BFB73961) where you can also see the source code. The contract implements the same logic as above in the `resolve(address)` method:
+The contract is called `NNSENSReverseResolver` and is deployed at [0x849f92178950f6254db5d16d1ba265e70521ac1b](https://etherscan.io/address/0x849f92178950f6254db5d16d1ba265e70521ac1b) where you can also see the source code. The contract implements the same logic as above in the `resolve(address)` method:
 
 - looks up an address on the NNS registry
 - if not found, looks up the address on the ENS registry
@@ -90,7 +90,7 @@ export async function lookupAddressWithENSFallbackUsingContract(
 ) {
   try {
     const res = await provider.call({
-      to: "0x5982ce3554b18a5cf02169049e81ec43bfb73961",
+      to: "0x849f92178950f6254db5d16d1ba265e70521ac1b",
       data: "0x55ea6c47000000000000000000000000" + address.substring(2), // resolve() method
     });
     // Parse result into a string.
@@ -105,6 +105,14 @@ export async function lookupAddressWithENSFallbackUsingContract(
   }
 }
 ```
+
+### Upgrading your integration from the old contract
+
+The original `NNSENSReverseResolver` was deployed at [0x5982ce3554b18a5cf02169049e81ec43bfb73961](https://etherscan.io/address/0x5982ce3554b18a5cf02169049e81ec43bfb73961) but had an issue that could lead to the same name being resolved for multiple addresses in case case of a domain transfer. In order to solve this issue,
+we have deployed a new version at [0x849f92178950f6254db5d16d1ba265e70521ac1b](https://etherscan.io/address/0x849f92178950f6254db5d16d1ba265e70521ac1b).
+
+Upgrading your current integration is very simple. Since the interface of the contract hasn't changed
+you simply need to update the address: you can just find and replace `0x5982ce3554b18a5cf02169049e81ec43bfb73961` with `0x849f92178950f6254db5d16d1ba265e70521ac1b`.
 
 ## Example of integration is a React application with @usedapp/core
 
@@ -145,7 +153,7 @@ async function lookupAddress(
 ): Promise<string | null> {
   try {
     const res = await library.call({
-      to: "0x5982ce3554b18a5cf02169049e81ec43bfb73961",
+      to: "0x849f92178950f6254db5d16d1ba265e70521ac1b",
       data: "0x55ea6c47000000000000000000000000" + address.substring(2),method
     });
     const offset = BigNumber.from(utils.hexDataSlice(res, 0, 32)).toNumber();

@@ -27,7 +27,7 @@ export async function lookupAddressWithENSFallbackUsingContract() {
   try {
     // Call resolver contract
     const res = await provider.call({
-      to: "0x5982ce3554b18a5cf02169049e81ec43bfb73961", // see https://etherscan.io/address/0x5982cE3554B18a5CF02169049e81ec43BFB73961
+      to: "0x849f92178950f6254db5d16d1ba265e70521ac1b", // see https://etherscan.io/address/0x849f92178950f6254db5d16d1ba265e70521ac1b
       data: "0x55ea6c47000000000000000000000000" + TEST_ADDRESS.substring(2), // call .resolve(address) method
     });
     // Parse result into a string.
