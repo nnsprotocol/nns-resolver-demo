@@ -1,185 +1,47 @@
-# Resolving .⌐◨-◨ domains
+## Important: Repository Deprecated
 
-The NNS registry is a fork of the [ENS registry](https://ens.domains/) and therefore most operations are fully compatible.
+This repository, previously home to a demo of how to resolve NNS names, has been deprecated. We are excited to announce that our efforts have evolved into a more advanced and user-friendly solution: `@nnsprotocol/resolver-wagmi`.
 
-Most libraries have hardcoded the ENS registry address so that all interactions, such as looking up .eth domain from an address are automatically executed against ENS. Luckily, most of them let us change the default ENS registry and therefore we can resolve names against NNS quite easily.
+## Introducing `@nnsprotocol/resolver-wagmi` 🎉
 
-Here you can find how you can resolve address to `.⌐◨-◨` domains with and without falling back to `.eth`.
+The `@nnsprotocol/resolver-wagmi` is our latest offering, crafted with the feedback and experiences from this repository. It not only addresses the limitations of the previous resolver but also introduces a plethora of new features and improvements, ensuring a seamless integration into your applications.
 
-#### See it working!
+### Why Switch to `@nnsprotocol/resolver-wagmi`?
 
-Everything explained here can be tries by running this simple demo application.
+- **Enhanced Performance**: Enjoy faster resolution times and improved efficiency.
+- **Simplified API**: Benefit from a clean, intuitive API that integrates seamlessly with wagmi, making your development process smoother.
+- **Automated Fallback**: Experience the smart `.eth` fallback mechanism, ensuring that your application always finds the right name.
+- **Active Support & Updates**: The new package is actively maintained, ensuring compatibility with the latest technologies and trends.
 
-```
-npm i
-npm start
-```
+## Migrating to `@nnsprotocol/resolver-wagmi`
 
-then open a browser and the console and you will see the name resolved as described below
-as well as on the page.
+We encourage all users of the old resolver to migrate to `@nnsprotocol/resolver-wagmi`. The process is straightforward and well-documented, designed to get you up and running with the new package in no time.
 
-Everything explained below can be found in the [examples](./src/examples/) folder.
+1. **Visit the New Repository:**
 
-## General solution using ethers.js
+   Discover everything about the new package, from installation instructions to usage examples, by visiting the repository where `@nnsprotocol/resolver-wagmi` is maintained:
 
-### Looking up .⌐◨-◨ domains from an address
+   [👉 nnsprotocol/resolver Repository](https://github.com/nnsprotocol/resolver)
 
-A common requirement is to perform a reverse lookup from an address,
-so that websites can display a `name.⌐◨-◨` rather than the associated address.
-This process is already performed by most websites only for `.eth` addresses using the ENS registry and we just need to switch to the NNS registry.
+2. **Install the New Package:**
 
-Assyming we are using [ethers.js](https://docs.ethers.io/v5/), this can be done very easily with the following code:
+   Quickly add `@nnsprotocol/resolver-wagmi` to your project using your preferred package manager. Detailed instructions are available in the new repository's README.
 
-```js
-export async function lookupAddress(provider, adddress) {
-  provider.network.ensAddress = NNS_REGISTRY;
-  return await provider.lookupAddress(adddress);
-}
-```
+3. **Explore the Documentation and the Demo:**
 
-where `NNS_REGISTRY` is the address of the NNS registry (.⌐◨-◨) on mainnet, i.e. [0x3e1970dc478991b49c4327973ea8a4862ef5a4de](https://etherscan.io/address/0x3e1970dc478991b49c4327973ea8a4862ef5a4de).
+   Familiarize yourself with the new API and explore the demo.
 
-This code can also be found [here](./src/examples/ethers.js) with a simple Infura provider as a quick way to test the integration. In your application, you should use the provider you are already using to connect to the network.
+## Upcoming Support for Additional Libraries 🚧
 
-### Looking up .⌐◨-◨ domains from an address with .eth fallback
+While `@nnsprotocol/resolver-wagmi` currently offers full support exclusively for wagmi, we understand the diverse needs of our developer community. We are thrilled to share that our team is actively working on expanding the compatibility of our resolution services.
 
-Most of the times however, you might be interested in resolving an address against NNS and then ENS in case there is no .⌐◨-◨ lookup.
-In other words, you are more likely interested in resolving one address so that:
+### What's Next?
 
-- first you check if they have a name.⌐◨-◨ domain
-- and if not, you try to check if they have a name.eth
-- and if not, you just show the address
+Our commitment is to provide a versatile and inclusive solution that caters to a broad spectrum of development stacks and preferences. Here's what you can expect in the near future:
 
-It's very likely your website is already doing step 2 and 3.
+- **Support for More Libraries**: We are in the process of extending support to additional popular libraries. Our goal is to ensure that developers using different frameworks can also benefit from the seamless domain resolution features of `@nnsprotocol/resolver-wagmi`.
+- **Continuous Improvement**: We are constantly seeking feedback and suggestions. This helps us prioritize the addition of new features and support for libraries based on the needs and preferences of our user base.
 
-The following code shows how this can be implemented:
+### Stay Updated!
 
-```js
-export async function lookupAddressWithENSFallback(provider, address) {
-  // try looking up the address on NNS (ie get name.⌐◨-◨)
-  provider.network.ensAddress = NNS_REGISTRY;
-  const nnsName = await provider.lookupAddress(address);
-  if (nnsName) {
-    return nnsName;
-  }
-  // if not, look up on ENS (ie get name.eth)
-  provider.network.ensAddress = ENS_REGISTRY;
-  return await provider.lookupAddress(address);
-}
-```
-
-where `NNS_REGISTRY` is the address of the NNS (.⌐◨-◨) registry on mainnet, i.e. [0x3e1970dc478991b49c4327973ea8a4862ef5a4de](https://etherscan.io/address/0x3e1970dc478991b49c4327973ea8a4862ef5a4de) as before and `ENS_REGISTRY` is the ENS registry (.eth) on mainnet, i.e. [0x00000000000c2e074ec69a0dfb2997ba6c7d2e1e](https://etherscan.io/address/0x00000000000c2e074ec69a0dfb2997ba6c7d2e1e).
-
-As for the previous example, this code can also be found [here](./src/examples/ethers.js)
-
-### Looking up .⌐◨-◨ domains from an address with .eth fallback with resolver contract
-
-The approach presented above does work, but requires two calls for each address which may be considered expensive and slow. For this reason, we have a created a contract that specifically resolves addresses to `.⌐◨-◨` with fallback to `.eth` so you can achieve the desired result in one call.
-
-The contract is called `NNSENSReverseResolver` and is deployed at [0x849f92178950f6254db5d16d1ba265e70521ac1b](https://etherscan.io/address/0x849f92178950f6254db5d16d1ba265e70521ac1b) where you can also see the source code. The contract implements the same logic as above in the `resolve(address)` method:
-
-- looks up an address on the NNS registry
-- if not found, looks up the address on the ENS registry
-
-Therefore, you only need your application to call this method which can be done easily as follow:
-
-```js
-export async function lookupAddressWithENSFallbackUsingContract(
-  provider,
-  address
-) {
-  try {
-    const res = await provider.call({
-      to: "0x849f92178950f6254db5d16d1ba265e70521ac1b",
-      data: "0x55ea6c47000000000000000000000000" + address.substring(2), // resolve() method
-    });
-    // Parse result into a string.
-    const offset = BigNumber.from(utils.hexDataSlice(res, 0, 32)).toNumber();
-    const length = BigNumber.from(
-      utils.hexDataSlice(res, offset, offset + 32)
-    ).toNumber();
-    const data = utils.hexDataSlice(res, offset + 32, offset + 32 + length);
-    return utils.toUtf8String(data) || null;
-  } catch (e) {
-    return null;
-  }
-}
-```
-
-### Upgrading your integration from the old contract
-
-The original `NNSENSReverseResolver` was deployed at [0x5982ce3554b18a5cf02169049e81ec43bfb73961](https://etherscan.io/address/0x5982ce3554b18a5cf02169049e81ec43bfb73961) but had an issue that could lead to the same name being resolved for multiple addresses in case case of a domain transfer. In order to solve this issue,
-we have deployed a new version at [0x849f92178950f6254db5d16d1ba265e70521ac1b](https://etherscan.io/address/0x849f92178950f6254db5d16d1ba265e70521ac1b).
-
-Upgrading your current integration is very simple. Since the interface of the contract hasn't changed
-you simply need to update the address: you can just find and replace `0x5982ce3554b18a5cf02169049e81ec43bfb73961` with `0x849f92178950f6254db5d16d1ba265e70521ac1b`.
-
-## Example of integration is a React application with @usedapp/core
-
-[useDApp](https://github.com/TrueFiEng/useDApp) is a popular react-friendly library to interact with the ethereum blockchain using react hooks.
-
-A simple and nice way to add NNS resolution is to create a custom hook that call the contract mentioned above.
-
-```jsx
-import { useEthers, Web3Provider } from "@usedapp/core";
-
-export const useReverseENSLookUp = (address: string) => {
-  const { library } = useEthers();
-  const [name, setName] = useState<string>();
-
-  useEffect(() => {
-    if (address) {
-      // NOTE: you might want to cache the address once resolved.
-      lookupAddress(library, address)
-        .then((name) => {
-          if (!name) return;
-          setName(name);
-        })
-        .catch((error) => {
-          console.log(`error resolving reverse ens lookup: `, error);
-        });
-    }
-    return () => {
-      setName("");
-    };
-  }, [address, library]);
-
-  return name;
-};
-
-async function lookupAddress(
-  library: Web3Provider,
-  address: string
-): Promise<string | null> {
-  try {
-    const res = await library.call({
-      to: "0x849f92178950f6254db5d16d1ba265e70521ac1b",
-      data: "0x55ea6c47000000000000000000000000" + address.substring(2),method
-    });
-    const offset = BigNumber.from(utils.hexDataSlice(res, 0, 32)).toNumber();
-    const length = BigNumber.from(
-      utils.hexDataSlice(res, offset, offset + 32)
-    ).toNumber();
-    const data = utils.hexDataSlice(res, offset + 32, offset + 32 + length);
-    return utils.toUtf8String(data) || null;
-  } catch (e) {
-    return null;
-  }
-}
-```
-
-We can then use this hook in any react component:
-
-```jsx
-const Component = ({ address }) => {
-  const name = useReverseENSLookUp(address);
-  return (
-    <>
-      <p>Address: {address}</p>
-      <p>Resolved name: {name || "NOT FOUND"}</p>
-    </>
-  );
-};
-```
-
-You can find this example [here](./src/examples/Component.jsx).
+We invite you to stay connected and keep an eye on our repository for the latest updates and releases. Your input is valuable, and we encourage you to share your thoughts and suggestions on libraries and features you would like to see supported in future releases.
